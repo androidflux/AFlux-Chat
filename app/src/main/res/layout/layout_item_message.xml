@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.example.flux.android.views.custom.BadgeLayout
+        android:id="@+id/message_item_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:badgeHeight="8dp"
+        app:badgeWidth="8dp"
+        app:badgeColor="#FF0000"
+        >
+        <ImageView
+            android:id="@+id/message_item_avatar"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            tools:src="@drawable/flux_logo"
+            />
+    </com.example.flux.android.views.custom.BadgeLayout>
+
+    <TextView
+        android:id="@+id/message_item_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_toRightOf="@+id/message_item_badge"
+        android:singleLine="true"
+        style="@style/Base.TextAppearance.AppCompat.Title"
+        tools:text="微信团队"
+        />
+
+    <TextView
+        android:id="@+id/message_item_body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_toRightOf="@+id/message_item_badge"
+        android:layout_below="@+id/message_item_title"
+        android:singleLine="true"
+        style="@style/Base.TextAppearance.AppCompat.Body1"
+        tools:text="你好，如果你有任何建议或投诉，请点击.."
+        />
+
+</RelativeLayout>

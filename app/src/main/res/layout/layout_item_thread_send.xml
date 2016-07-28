@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+    <ImageView
+        android:id="@+id/thread_item_avatar"
+        android:layout_alignParentRight="true"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="8dp"
+        tools:src="@drawable/flux_logo"
+        />
+    <TextView
+        android:id="@+id/thread_item_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/thread_item_avatar"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="64dp"
+        tools:text="一去二三里，烟村四五家，亭台六七座，八九十之花"/>
+
+</RelativeLayout>

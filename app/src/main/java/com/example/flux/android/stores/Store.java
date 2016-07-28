@@ -1,5 +1,7 @@
 package com.example.flux.android.stores;
 
+import android.util.Log;
+
 import com.example.flux.android.actions.Action;
 import com.example.flux.android.dispatcher.Dispatcher;
 import com.squareup.otto.Bus;
@@ -26,8 +28,14 @@ public abstract class Store {
         this.bus.post(changeEvent());
     }
 
+    void emitStoreChange(String event) {
+        this.bus.post(event);
+    }
+
     public abstract StoreChangeEvent changeEvent();
     public abstract void onAction(Action action);
 
-    public class StoreChangeEvent {}
+    public class StoreChangeEvent {
+        public String type;
+    }
 }
