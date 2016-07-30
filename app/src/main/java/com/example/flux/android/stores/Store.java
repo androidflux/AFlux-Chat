@@ -1,9 +1,6 @@
 package com.example.flux.android.stores;
 
-import android.util.Log;
-
 import com.example.flux.android.actions.Action;
-import com.example.flux.android.dispatcher.Dispatcher;
 import com.squareup.otto.Bus;
 
 /**

@@ -11,7 +11,5 @@ import java.util.List;
  * Created by ntop on 16/7/28.
  */
 public interface ChatService {
-    public List<Thread>  getAllThread();
-    public List<Message> getAllMessage(String threadId);
-    public void pushMessage(Message message, Person person);
+    public List<Message> getAllMessage();
 }

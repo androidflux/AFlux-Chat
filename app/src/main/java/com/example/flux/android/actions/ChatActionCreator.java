@@ -28,37 +28,14 @@ public class ChatActionCreator {
         this.dispatcher = dispatcher;
     }
 
-    public void loadAllThread() {
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                ChatService chatService = Factory.getChatService();
-                List<Thread> threads = chatService.getAllThread();
-                dispatcher.dispatch(new ChatAction(ChatAction.CHAT_INIT_THREAD, threads));
-            }
-        }, 1000);
+    public void receiveBatch() {
+        ChatService chatService = Factory.getChatService();
+        List<Message> messages = chatService.getAllMessage();
+        dispatcher.dispatch(new ChatAction(ChatAction.CHAT_RECEV_BATCH, messages));
     }
 
     public void clickThread(final Thread thread) {
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                dispatcher.dispatch(new ChatAction(ChatAction.CHAT_CLICK_THREAD, thread));
-            }
-        }, 1000);
-    }
-
-    public void loadMessage(final String threadId) {
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ChatService chatService = Factory.getChatService();
-                List<Message> messages = chatService.getAllMessage(threadId);
-                dispatcher.dispatch(new ChatAction(ChatAction.CHAT_INIT_MESSAGE, messages));
-            }
-        }, 1000);
+        dispatcher.dispatch(new ChatAction(ChatAction.CHAT_CLICK_THREAD, thread));
     }
 
     public void sendMessage(final String text, final String threadId) {
@@ -72,13 +49,5 @@ public class ChatActionCreator {
         message.setTimestamp(System.currentTimeMillis());
 
         dispatcher.dispatch(new ChatAction(ChatAction.CHAT_SEND_MESSAGE, message));
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ChatService chatService = Factory.getChatService();
-                chatService.pushMessage(message, onself);
-            }
-        }, 1000);
     }
-
 }

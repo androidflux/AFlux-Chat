@@ -28,7 +28,7 @@ public class ThreadActivity extends AppCompatActivity {
     private ThreadStore store = Flux.getStore(ThreadStore.class);
     private ChatActionCreator actionCreator = null;
 
-    private MessageAdapter messageAdapter = null;
+    private ThreadAdapter messageAdapter = null;
     private ListView listView = null;
 
     @Override
@@ -37,7 +37,7 @@ public class ThreadActivity extends AppCompatActivity {
         setContentView(R.layout.activity_thread);
         initView();
         actionCreator = ChatActionCreator.getCreator(Flux.getDispatcher());
-        actionCreator.loadAllThread();
+        actionCreator.receiveBatch();
     }
 
     private void initView() {
@@ -48,7 +48,7 @@ public class ThreadActivity extends AppCompatActivity {
 
         // the others
         listView = (ListView)findViewById(R.id.message_listView);
-        messageAdapter = new MessageAdapter(this);
+        messageAdapter = new ThreadAdapter(this);
         listView.setAdapter(messageAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -61,7 +61,7 @@ public class ThreadActivity extends AppCompatActivity {
     }
 
     private void render() {
-        messageAdapter.setMessages(store.getThreads());
+        messageAdapter.setThreads(store.getThreads());
         messageAdapter.notifyDataSetChanged();
     }
 
@@ -96,30 +96,30 @@ public class ThreadActivity extends AppCompatActivity {
         render();
     }
 
-    static class MessageAdapter extends BaseAdapter {
-        private List<Thread> messages = Collections.EMPTY_LIST;
+    static class ThreadAdapter extends BaseAdapter {
+        private List<Thread> threads = Collections.EMPTY_LIST;
         private Context context;
 
-        MessageAdapter(Context context) {
+        ThreadAdapter(Context context) {
             this.context = context;
         }
 
-        public void setMessages(List<Thread> messages) {
-            this.messages = messages;
+        public void setThreads(List<Thread> threads) {
+            this.threads = threads;
         }
 
-        public List<Thread> getMessages() {
-            return messages;
+        public List<Thread> getThreads() {
+            return threads;
         }
 
         @Override
         public int getCount() {
-            return messages.size();
+            return threads.size();
         }
 
         @Override
         public Object getItem(int i) {
-            return messages.get(i);
+            return threads.get(i);
         }
 
         @Override
@@ -135,7 +135,7 @@ public class ThreadActivity extends AppCompatActivity {
                 view.setTag(holder);
             }
 
-            render((ViewHolder)view.getTag(), (Thread)messages.get(i));
+            render((ViewHolder)view.getTag(), (Thread) threads.get(i));
 
             return view;
         }

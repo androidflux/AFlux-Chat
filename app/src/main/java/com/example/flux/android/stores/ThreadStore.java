@@ -1,15 +1,16 @@
 package com.example.flux.android.stores;
 
-import android.util.Log;
-
 import com.example.flux.android.actions.Action;
 import com.example.flux.android.actions.ChatAction;
 import com.example.flux.android.model.Message;
 import com.example.flux.android.model.Thread;
+import com.example.flux.android.utils.utils;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * MessageStore类主要用来维护MainActivity的UI状态
@@ -31,70 +32,61 @@ public class ThreadStore extends Store {
     @Subscribe
     public void onAction(Action action) {
         switch (action.getType()) {
-            case ChatAction.CHAT_INIT_THREAD:
-            {
-                threads = (List<Thread>)action.getData();
-                emitStoreChange();
-            }
-            break;
-            case ChatAction.CHAT_CLICK_THREAD:
-            {
-                Thread th = (Thread)action.getData();
-                for(Thread thread : threads) {
-                    if (thread.getId().equals(th.getId())) {
-                        thread.setRead(true);
-                        break;
-                    }
-                }
-                emitStoreChange("nav");
-            }break;
-            case ChatAction.CHAT_NEW_THREAD:
-            {
-                Thread thread = (Thread)action.getExtra("thread");
-                for(Thread th : threads) {
-                    if (th.getTitle().equals(thread.getTitle())) {
-                        thread.setRead(true);
-                        break;
-                    }
-                }
-                emitStoreChange();
-            }
-            break;
-            case ChatAction.CHAT_SEND_MESSAGE:
-            {
-                Message message = (Message)action.getData();
-                for (Thread thread : threads) {
-                    if (thread.getId().equals(message.getThreadId())) {
-                        thread.setLastMessage(message);
-                        break;
-                    }
-                }
-                emitStoreChange();
-            }
-            break;
-            case ChatAction.CHAT_RECEV_MESSAGE:
-            {
-                Message message = (Message)action.getData();
-                for (Thread thread : threads) {
-                    if (thread.getTitle().equals(message.getThreadId())) {
-                        thread.setLastMessage(message);
-                        break;
-                    }
-                }
-                emitStoreChange();
-            }
-            break;
             case ChatAction.CHAT_RECEV_BATCH:
             {
-
-            }
-            break;
+                init((List<Message>) action.getData());
+                emitStoreChange();
+            }break;
+            case ChatAction.CHAT_CLICK_THREAD:
+            {
+                final Thread th = (Thread)action.getData();
+                Thread thread = findById(th.getId());
+                thread.setRead(true);
+                emitStoreChange("nav");
+            }break;
+            case ChatAction.CHAT_SEND_MESSAGE:
+            case ChatAction.CHAT_RECEV_MESSAGE:
+            {
+                final Message message = (Message)action.getData();
+                Thread thread = findById(message.getThreadId());
+                if (thread != null) {
+                    thread.setLastMessage(message);
+                    emitStoreChange();
+                }
+            }break;
             default:
         }
     }
 
-    private void receive(Message message) {
+    private void init(List<Message> messages) {
+        Map<String, Thread> temp = new HashMap<>();
+        for(Message message: messages) {
+            if (!temp.containsKey(message.getThreadId())) {
+                Thread thread = new Thread();
+                thread.setId(message.getThreadId());
+                thread.setTitle(message.getName());
+                thread.setAvatar(message.getAvatar());
+                thread.setLastMessage(message);
 
+                if (!message.isRead()) thread.setRead(false);
+                temp.put(message.getThreadId(), thread);
+            } else {
+                Thread thread = temp.get(message.getThreadId());
+                if (thread.getLastMessage().getTimestamp() < message.getTimestamp()) {
+                    thread.setLastMessage(message);
+                }
+            }
+        }
+        threads = new ArrayList<>(temp.values());
+    }
+
+    private Thread findById(final String id) {
+        return utils.findOne(threads, new utils.Filter<Thread>() {
+            @Override
+            public boolean apply(Thread thread) {
+                return thread.getId().equals(id);
+            }
+        });
     }
 
     @Override

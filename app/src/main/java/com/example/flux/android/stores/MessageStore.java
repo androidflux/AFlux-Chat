@@ -1,16 +1,11 @@
 package com.example.flux.android.stores;
 
-import android.util.Log;
-
-import com.example.flux.android.Flux;
 import com.example.flux.android.actions.Action;
 import com.example.flux.android.actions.ChatAction;
-import com.example.flux.android.actions.ChatActionCreator;
-import com.example.flux.android.dispatcher.Dispatcher;
 import com.example.flux.android.model.*;
 import com.example.flux.android.model.Thread;
+import com.example.flux.android.utils.utils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,6 +13,7 @@ import java.util.List;
  * Created by ntop on 16/7/27.
  */
 public class MessageStore extends Store {
+    private List<Message> all = Collections.EMPTY_LIST;
     private List<Message> messages = Collections.EMPTY_LIST;
     private String threadId;
     private String title;
@@ -59,59 +55,54 @@ public class MessageStore extends Store {
     @Override
     public void onAction(Action action) {
         switch (action.getType()) {
-            case ChatAction.CHAT_CLICK_THREAD:
+            case ChatAction.CHAT_RECEV_BATCH:
             {
-                Thread thread = (Thread)action.getData();
-                threadId = thread.getId();
-                title = thread.getTitle();
+                this.all = ((List<Message>) action.getData());
+                this.unRead = utils.sum(this.all, new utils.Filter<Message>() {
+                    @Override
+                    public boolean apply(Message message) {
+                        return !message.isRead();
+                    }
+                });
                 emitStoreChange();
             }break;
-            case ChatAction.CHAT_INIT_MESSAGE:
+            case ChatAction.CHAT_CLICK_THREAD:
             {
-                messages = (List<Message>) action.getData();
-                unRead = (int)action.getExtra("unread");
+                initThread((Thread)action.getData());
                 emitStoreChange();
             }break;
             case ChatAction.CHAT_SEND_MESSAGE:
-            {
-                Message message = (Message)action.getData();
-                messages.add(message);
-                emitStoreChange();
-            }break;
-            case ChatAction.CHAT_RECEV_BATCH:
-            {
-                List<Message> data = (List<Message>)action.getData();
-                for(Message message : data) {
-                    if (threadId.equals(message.getThreadId())) {
-                        message.setRead(true);
-                        messages.add(message);
-                    } else {
-                        unRead ++;
-                    }
-                }
-                emitStoreChange();
-            }break;
             case ChatAction.CHAT_RECEV_MESSAGE:
             {
                 Message message = (Message)action.getData();
-                if (threadId.equals(message.getThreadId())) {
-                    message.setRead(true);
-                    messages.add(message);
-                } else {
-                    unRead ++;
-                }
+                messages.add(message);
+                all.add(message);
                 emitStoreChange();
-            }
-            break;
-            case ChatAction.CHAT_NEW_THREAD:
-            {
-                threadId = (String)action.getExtra("thread");
-                unRead = (int)action.getExtra("unread");
-                title = (String)action.getExtra("title");
-                emitStoreChange();
-            }
-            break;
-
+            }break;
         }
+    }
+
+    private void initThread(final Thread thread) {
+        threadId = thread.getId();
+        title = thread.getTitle();
+        messages = utils.findAll(all, new utils.Filter<Message>() {
+            @Override
+            public boolean apply(Message message) {
+                return (message.getThreadId().equals(thread.getId()));
+            }
+        });
+        unRead -= utils.sum(messages, new utils.Filter<Message>() {
+            @Override
+            public boolean apply(Message message) {
+                return !message.isRead();
+            }
+        });
+        messages = utils.map(messages, new utils.Map<Message, Message>(){
+            @Override
+            public Message convert(Message message) {
+                message.setRead(true);
+                return message;
+            }
+        });
     }
 }

@@ -11,6 +11,8 @@ public class Message {
     private String threadId;
     // 头像
     private int avatar;
+    // 名称
+    private String name;
     // 消息
     private String message;
     // 是否已读
@@ -38,6 +40,14 @@ public class Message {
 
     public int getAvatar() {
         return avatar;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setAvatar(int avatar) {

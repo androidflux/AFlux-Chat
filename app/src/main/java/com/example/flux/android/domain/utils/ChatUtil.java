@@ -16,6 +16,7 @@ public class ChatUtil {
         message.setMessage(rawMessage.message);
         message.setThreadId(rawMessage.threadId);
         message.setType(rawMessage.type);
+        message.setName(rawMessage.author.getName());
         return message;
     }
 

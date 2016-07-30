@@ -5,13 +5,10 @@ import com.example.flux.android.domain.Factory;
 import com.example.flux.android.domain.model.RawMessage;
 import com.example.flux.android.domain.utils.ChatUtil;
 import com.example.flux.android.model.*;
-import com.example.flux.android.model.Thread;
 import com.example.flux.android.model.Message;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 /**
@@ -22,49 +19,12 @@ public class ChatServiceImpl implements ChatService {
     private List<RawMessage> messages = new ArrayList<RawMessage>();
 
     @Override
-    public List<Thread> getAllThread() {
-        Map<String, Thread> temp = new HashMap<>();
-        for(RawMessage message: messages) {
-            if (!temp.containsKey(message.threadId)) {
-                Thread thread = new Thread();
-                thread.setId(message.threadId);
-                thread.setTitle(message.author.getName());
-                thread.setAvatar(message.author.getAvatar());
-                thread.setLastMessage(ChatUtil.convert(message));
-
-                if (!message.isRead) thread.setRead(false);
-                temp.put(message.threadId, thread);
-            } else {
-                Thread thread = temp.get(message.threadId);
-                if (thread.getLastMessage().getTimestamp() < message.timestamp) {
-                    thread.setLastMessage(ChatUtil.convert(message));
-                }
-            }
-        }
-        return new ArrayList<>(temp.values());
-    }
-
-    @Override
-    public List<Message> getAllMessage(String threadId) {
-        List<Message> list = new ArrayList<>();
-        for(RawMessage rawMessage : messages) {
-            if (rawMessage.threadId.equals(threadId)) {
-                list.add(ChatUtil.convert(rawMessage));
-            }
+    public List<Message> getAllMessage() {
+        List<Message> list = new ArrayList<>(messages.size());
+        for(RawMessage raw : messages) {
+            list.add(ChatUtil.convert(raw));
         }
         return list;
-    }
-
-    @Override
-    public void pushMessage(Message message, Person person) {
-        RawMessage raw = new RawMessage();
-        raw.message = message.getMessage();
-        raw.threadId = message.getThreadId();
-        raw.timestamp = message.getTimestamp();
-        raw.isRead = message.isRead();
-        raw.type = message.getType();
-        raw.author = person;
-        messages.add(raw);
     }
 
     // 伪造一些数据

@@ -7,6 +7,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,7 +28,7 @@ public class MessageActivity extends AppCompatActivity {
     private MessageStore store = Flux.getStore(MessageStore.class);
     private ChatActionCreator actionCreator;
 
-    private ThreadAdapter threadAdapter = null;
+    private MessageAdapter threadAdapter = null;
     private ListView listView;
     private EditText inputText;
 
@@ -39,9 +40,7 @@ public class MessageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
         initView();
-
         actionCreator = ChatActionCreator.getCreator(Flux.getDispatcher());
-        actionCreator.loadMessage(store.getThreadId());
     }
 
     private void initView() {
@@ -62,7 +61,9 @@ public class MessageActivity extends AppCompatActivity {
 
         // the others
         listView = (ListView)findViewById(R.id.thread_listView);
-        threadAdapter = new ThreadAdapter(this);
+        listView.setStackFromBottom(true);
+        listView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_NORMAL);
+        threadAdapter = new MessageAdapter(this);
         listView.setAdapter(threadAdapter);
         inputText = (EditText)findViewById(R.id.thread_input_text);
     }
@@ -85,19 +86,8 @@ public class MessageActivity extends AppCompatActivity {
         backButton.setText(store.getBackText());
         titleText.setText(store.getTitle());
 
-        threadAdapter.setThreads(store.getThreads());
+        threadAdapter.setMessages(store.getThreads());
         threadAdapter.notifyDataSetChanged();
-
-        scrollToBottom();
-    }
-
-    // 初次直接定位到最后，以后滚动
-    private void scrollToBottom() {
-        if (listView.getFirstVisiblePosition() == 0) {
-            listView.setSelection(listView.getBottom());
-        } else {
-            listView.smoothScrollToPosition(listView.getBottom());
-        }
     }
 
     @Subscribe
@@ -118,31 +108,31 @@ public class MessageActivity extends AppCompatActivity {
         render();
     }
 
-    static class ThreadAdapter extends BaseAdapter {
+    static class MessageAdapter extends BaseAdapter {
         static int TYPE_RECEIVE = 0;
         static int TYPE_SEND = 1;
 
-        private List<Message> threads = Collections.EMPTY_LIST;
+        private List<Message> messages = Collections.EMPTY_LIST;
 
 
         private Context context;
 
-        ThreadAdapter(Context context) {
+        MessageAdapter(Context context) {
             this.context = context;
         }
 
-        public void setThreads(List<Message> threads) {
-            this.threads = threads;
+        public void setMessages(List<Message> messages) {
+            this.messages = messages;
         }
 
         @Override
         public int getCount() {
-            return threads.size();
+            return messages.size();
         }
 
         @Override
         public Object getItem(int i) {
-            return threads.get(i);
+            return messages.get(i);
         }
 
         @Override
@@ -157,7 +147,7 @@ public class MessageActivity extends AppCompatActivity {
 
         @Override
         public int getItemViewType(int position) {
-            return threads.get(position).getType();
+            return messages.get(position).getType();
         }
 
         @Override
